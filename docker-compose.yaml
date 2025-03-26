@@ -1,0 +1,27 @@
+services:
+  prodServer:
+    # up lifecycle containers
+    # install composer deps
+    # force migrate
+    # cache configurations
+    # install npm deps & run build
+  devServer:
+    # up lifecycle containers
+    # install composer deps
+    # install js deps
+    # up vite dev server
+  # createProject (?)
+  test:
+    # create neccesary files for testing
+    # run tests
+
+
+  php:
+  node:
+  mysql:
+  redis:
+
+  artisan:
+  composer:
+
+  
