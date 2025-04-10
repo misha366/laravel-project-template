@@ -1,27 +1,55 @@
 services:
-  prodServer:
-    # up lifecycle containers
-    # install composer deps
-    # force migrate
-    # cache configurations
-    # install npm deps & run build
-  devServer:
-    # up lifecycle containers
-    # install composer deps
-    # install js deps
-    # up vite dev server
-  # createProject (?)
-  test:
-    # create neccesary files for testing
-    # run tests
-
+  # Long Running
+  nginx:
+    image: "nginx:stable-alpine"
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./src:/var/www/laravel
+    depends_on:
+      - php
 
   php:
-  node:
+    build:
+      context: dockerfiles
+      dockerfile: php.Dockerfile
+    volumes:
+      - ./src:/var/www/laravel
+    depends_on:
+      mysql:
+        condition: service_healthy
+
   mysql:
-  redis:
+    image: mysql:8.0
+    ports:
+      - "3316:3306"
+    env_file:
+      - ./mysql/mysql.env
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 0s
 
-  artisan:
-  composer:
-
+  # One Shot (use with "--rm")
+  composer: # create project in src: docker-compose run --rm composer create-project laravel/laravel .
+    build:
+      context: dockerfiles
+      dockerfile: composer.Dockerfile
+    volumes:
+      - ./src:/var/www/laravel
   
+  artisan:
+    build:
+      context: dockerfiles
+      dockerfile: php.Dockerfile
+    entrypoint: ["php", "/var/www/laravel/artisan"]
+    volumes:
+      - ./src:/var/www/laravel
+
+volumes:
+  db_data:
