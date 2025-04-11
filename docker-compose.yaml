@@ -34,6 +34,16 @@ services:
       timeout: 3s
       retries: 3
       start_period: 0s
+  
+  front.run:
+    build:
+      context: dockerfiles
+      dockerfile: node.Dockerfile
+    entrypoint: ["npm", "run", "dev"]
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src:/var/www/laravel
 
   # One Shot (use with "--rm")
   composer: # create project in src: docker-compose run --rm composer create-project laravel/laravel .
@@ -48,6 +58,14 @@ services:
       context: dockerfiles
       dockerfile: php.Dockerfile
     entrypoint: ["php", "/var/www/laravel/artisan"]
+    volumes:
+      - ./src:/var/www/laravel
+
+  front.npm:
+    build:
+      context: dockerfiles
+      dockerfile: node.Dockerfile
+    entrypoint: ["npm"]
     volumes:
       - ./src:/var/www/laravel
 
